@@ -5,9 +5,14 @@ from aiogram.types import (ReplyKeyboardMarkup, KeyboardButton,
                            InlineKeyboardMarkup, InlineKeyboardButton)
 from aiogram.utils.keyboard import ReplyKeyboardBuilder,InlineKeyboardBuilder
 from aiogram.filters.callback_data import CallbackData
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
+import asyncio
+from aiogram import Bot, Dispatcher, Router, types
+from config import TOKEN
 
-
-router = Router()
+bot = Bot(TOKEN)
+router = Router()   
 @router.message(CommandStart())
 async def start(message:Message):
     description = (
@@ -17,12 +22,11 @@ async def start(message:Message):
         "Используй эти кнопки!"
     )
     kb = [
-    [KeyboardButton(text='Болит голова')],
-    [KeyboardButton(text='Болит живот')],
-    [KeyboardButton(text='Болит горло')],
-    [KeyboardButton(text='Болит зуб')]]
+        [KeyboardButton(text='Номер скорой помощи'), KeyboardButton(text='Адрес больниц в Бишкеке')],
+        [KeyboardButton(text='Болит голова'), KeyboardButton(text='Болит живот')],
+        [KeyboardButton(text='Болит горло'), KeyboardButton(text='Болит зуб')]
+    ]
 
-    
     keyboard = ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True)
     await message.answer(description, reply_markup=keyboard)
 
@@ -74,3 +78,36 @@ async def tooth(message: Message):
         "- В случае наблюдения воспаления десен или наличия дентального пломбы, обратиться к стоматологу.\n"
     )
 
+
+# @router.message(F.text == 'Советы')
+# async def advice(message:Message):
+#     keyboard = InlineKeyboardMarkup(inline_keyboard=[
+#         [InlineKeyboardButton(text='Болит голова', callback_data='headache')],
+#         [InlineKeyboardButton(text='Болит живот', callback_data='stomachache')],
+#         [InlineKeyboardButton(text='Болит горло', callback_data='sorethroat')],
+#         [InlineKeyboardButton(text='Болит зуб', callback_data='toothache')]
+#     ])
+#     await message.answer(text='Выберите тему:', reply_markup=keyboard)
+
+@router.message(F.text == 'Номер скорой помощи')
+async def number(message:Message):
+    await message.answer('Номер скорой помощи в России: 103, в США: 911')
+
+@router.message(F.text == 'Адрес больниц в Бишкеке')
+async def address(message:Message):
+    await message.answer('Научно-исследовательский центр охраны здоровья народа:\n'
+'Адрес: ул. Тыныстанова, 16\n'
+'Городская клиническая больница № 1:\n'
+'Адрес: ул. Ибраимова, 87\n'
+'Городская клиническая больница № 4:\n'
+'Адрес: ул. Логвиненко, 3\n'
+'Городская клиническая больница № 6:\n'
+'Адрес: ул. Каракольская, 6\n'
+'Городская клиническая больница № 8:\n'
+'Адрес: ул. Раззакова, 2\n'
+)
+
+async def periodic_messages():  
+    while True:
+        await asyncio.sleep(2)
+        await bot.send_message(chat_id=1375504505, text="Не забудьте почистить зубы!")
